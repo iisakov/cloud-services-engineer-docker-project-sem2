@@ -4,7 +4,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "8081:8081"
     user: "1001:1001"
     restart: always
 
@@ -13,7 +13,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "8081:8081"
+      - "80:80"
     depends_on:
       - backend
     restart: always
+
+networks:
+  momo-net:
+    driver: bridge
