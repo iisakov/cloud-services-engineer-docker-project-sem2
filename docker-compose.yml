@@ -35,8 +35,18 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
 
 networks:
   momo-net:
     driver: bridge
     internal: false
+
+volumes:
+  tmp_volume:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
