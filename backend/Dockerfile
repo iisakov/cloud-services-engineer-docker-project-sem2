@@ -2,18 +2,25 @@ FROM golang:1.17-alpine AS builder
 
 WORKDIR /app
 
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -ldflags="-w -s -extldflags '-static'" \
+    -o api ./cmd/api
 
-RUN go build -o api ./cmd/api
-
-FROM alpine:3.21
-
-RUN adduser -D -u 1001 appuser
-USER appuser
+FROM gcr.io/distroless/static-debian12:nonroot
 
 WORKDIR /app
 
-EXPOSE 80
+COPY --from=builder --chown=nonroot:nonroot /app/api .
 
-COPY --from=builder /app/api .
+USER nonroot:nonroot
+
+EXPOSE 8081
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=5s \
+    CMD ["/app/api", "health"]
+
 CMD ["/app/api"]

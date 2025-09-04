@@ -8,6 +8,12 @@ services:
     user: "1001:1001"
     networks:
       - momo-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   frontend:
     build:
@@ -19,6 +25,12 @@ services:
       - backend
     networks:
       - momo-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
 networks:
   momo-net:
