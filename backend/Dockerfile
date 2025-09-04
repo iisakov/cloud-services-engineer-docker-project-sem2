@@ -20,7 +20,4 @@ USER nonroot:nonroot
 
 EXPOSE 8081
 
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=5s \
-    CMD ["/app/api", "health"]
-
 CMD ["/app/api"]

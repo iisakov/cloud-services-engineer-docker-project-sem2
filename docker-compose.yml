@@ -5,15 +5,19 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8081:8081"
-    user: "1001:1001"
     networks:
       - momo-net
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8081/health" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,size=64M
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   frontend:
     build:
@@ -35,3 +39,4 @@ services:
 networks:
   momo-net:
     driver: bridge
+    internal: false
