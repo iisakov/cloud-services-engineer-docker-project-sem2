@@ -2,18 +2,23 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY ./package*.json ./
-RUN npm install
-
-COPY ./ ./
-
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
+COPY package*.json ./
+RUN npm ci --only=production --no-audit --no-fund
+
+COPY . .
 RUN npm run build
 
-FROM nginx:alpine
+FROM nginxinc/nginx-unprivileged:1.25-alpine
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder --chown=101:101 /app/dist /usr/share/nginx/html
+
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+RUN rm -rf /etc/nginx/conf.d/default.conf.bak \
+    && find /usr/share/nginx/html -name "*.map" -delete
+
+USER 101
 
 EXPOSE 80
