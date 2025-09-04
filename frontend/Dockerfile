@@ -8,6 +8,9 @@ COPY package*.json ./
 RUN npm ci --only=production --no-audit --no-fund
 
 COPY . .
+
+RUN which npm || apk add --no-cache nodejs npm
+
 RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:1.25-alpine
