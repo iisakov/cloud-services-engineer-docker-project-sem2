@@ -15,7 +15,7 @@ RUN npm run build
 
 RUN npm ci --only=production --no-audit --no-fund
 
-FROM nginxinc/nginx-unprivileged:1.25-alpine
+FROM nginxinc/nginx-unprivileged:1.25-alpine AS runer
 
 COPY --from=builder --chown=101:101 /app/dist /usr/share/nginx/html
 
@@ -23,6 +23,9 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 RUN rm -rf /etc/nginx/conf.d/default.conf.bak \
     && find /usr/share/nginx/html -name "*.map" -delete
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:80/ || exit 1
 
 USER 101
 
