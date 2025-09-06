@@ -5,13 +5,15 @@ WORKDIR /app
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
 COPY package*.json ./
-RUN npm ci --only=production --no-audit --no-fund
+RUN npm ci --no-audit --no-fund
 
 COPY . .
 
 RUN which npm || apk add --no-cache nodejs npm
 
 RUN npm run build
+
+RUN npm ci --only=production --no-audit --no-fund
 
 FROM nginxinc/nginx-unprivileged:1.25-alpine
 
